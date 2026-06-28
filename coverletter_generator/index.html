@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fairy's CoverLetter Generator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --purple: #7c3aed;
+            --purple-light: #ede9fe;
+            --pink: #db2777;
+            --bg: #f5f3ff;
+            --card: #ffffff;
+            --text: #1e1b4b;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --success: #059669;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            padding: 32px 16px 60px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .header .badge {
+            display: inline-block;
+            background: var(--purple-light);
+            color: var(--purple);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 999px;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .header h1 span {
+            background: linear-gradient(135deg, var(--purple), var(--pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: var(--muted);
+            margin-top: 8px;
+            font-size: 0.95rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            max-width: 820px;
+            margin: 0 auto 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            background: white;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            border-color: var(--purple);
+            color: var(--purple);
+            background: var(--purple-light);
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(124, 58, 237, 0.08);
+            padding: 32px;
+            max-width: 820px;
+            margin: 0 auto;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        input,
+        textarea,
+        select {
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 0.93rem;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fafafa;
+            width: 100%;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--purple);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+            background: white;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .char-count {
+            font-size: 0.73rem;
+            color: #9ca3af;
+            text-align: right;
+            margin-top: 2px;
+        }
+
+        .char-count.warn {
+            color: #ef4444;
+        }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            padding: 0;
+            accent-color: var(--purple);
+            border: none;
+            background: transparent;
+        }
+
+        .slider-val {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--purple);
+            min-width: 65px;
+            text-align: right;
+        }
+
+        .tone-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .tone-card {
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .tone-card:hover {
+            border-color: var(--purple);
+        }
+
+        .tone-card.selected {
+            border-color: var(--purple);
+            background: var(--purple-light);
+        }
+
+        .tone-card .emoji {
+            font-size: 1.4rem;
+        }
+
+        .tone-card .tone-name {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-top: 4px;
+        }
+
+        .tone-card .tone-desc {
+            font-size: 0.72rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .generate-btn {
+            width: 100%;
+            margin-top: 24px;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--purple), var(--pink));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+
+        .generate-btn:hover {
+            opacity: 0.92;
+            transform: translateY(-1px);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .output-section {
+            margin-top: 24px;
+            display: none;
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .output-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .output-meta {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .word-badge {
+            background: #d1fae5;
+            color: var(--success);
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.78rem;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .small-btn {
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1.5px solid var(--border);
+            background: white;
+            color: var(--muted);
+            transition: all 0.2s;
+        }
+
+        .small-btn:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+
+        #output-box {
+            background: #fafafa;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--text);
+            white-space: pre-wrap;
+            min-height: 100px;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .history-item {
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            background: #fafafa;
+        }
+
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .history-item h4 {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .history-item .meta {
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .history-item .preview {
+            font-size: 0.85rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .expand-btn {
+            font-size: 0.78rem;
+            color: var(--purple);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px 0;
+            font-weight: 600;
+        }
+
+        .lang-badge {
+            font-size: 0.72rem;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .lang-english {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .lang-urdu {
+            background: #fce7f3;
+            color: #9d174d;
+        }
+
+        .lang-roman {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .templates-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .template-card {
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            background: #fafafa;
+            transition: border-color 0.2s;
+        }
+
+        .template-card:hover {
+            border-color: var(--purple);
+        }
+
+        .template-card h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .template-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .tag {
+            font-size: 0.72rem;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-weight: 600;
+            background: var(--purple-light);
+            color: var(--purple);
+        }
+
+        .use-template-btn {
+            padding: 8px 18px;
+            background: var(--purple);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .use-template-btn:hover {
+            opacity: 0.85;
+        }
+
+        .error-msg {
+            color: #dc2626;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: #fef2f2;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2.5px solid rgba(255, 255, 255, 0.4);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .empty-state .big {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 580px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full {
+                grid-column: 1;
+            }
+
+            .tone-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="badge">✨ Powered by Gemini AI</div>
+        <h1>Fairy's <span>CoverLetter Generator</span> 💌</h1>
+        <p>Paste the job description and your background — we'll handle the rest!</p>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('generate', this)">✍️ Generate</button>
+        <button class="tab-btn" onclick="switchTab('history', this)">📜 History</button>
+        <button class="tab-btn" onclick="switchTab('templates', this)">📋 Templates</button>
+    </div>
+
+    <div class="card">
+
+        <!-- TAB 1: GENERATE -->
+        <div class="tab-panel active" id="tab-generate">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Job Title</label>
+                    <input type="text" id="job_title" placeholder="e.g. Software Engineer" maxlength="120" />
+                </div>
+                <div class="form-group">
+                    <label>Company Name</label>
+                    <input type="text" id="company_name" placeholder="e.g. Systems Limited" maxlength="120" />
+                </div>
+                <div class="form-group full">
+                    <label>Tone</label>
+                    <div class="tone-cards">
+                        <div class="tone-card selected" onclick="selectTone('formal', this)">
+                            <div class="emoji">🎩</div>
+                            <div class="tone-name">Formal</div>
+                            <div class="tone-desc">Traditional business style</div>
+                        </div>
+                        <div class="tone-card" onclick="selectTone('conversational', this)">
+                            <div class="emoji">😊</div>
+                            <div class="tone-name">Conversational</div>
+                            <div class="tone-desc">Warm and friendly</div>
+                        </div>
+                        <div class="tone-card" onclick="selectTone('confident', this)">
+                            <div class="emoji">💪</div>
+                            <div class="tone-name">Confident</div>
+                            <div class="tone-desc">Bold and results-first</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Language</label>
+                    <select id="language">
+                        <option value="english">🇬🇧 English</option>
+                        <option value="urdu">🌙 Urdu (اردو)</option>
+                        <option value="roman urdu">✍️ Roman Urdu</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Word Limit</label>
+                    <div class="slider-row">
+                        <input type="range" id="word_limit" min="100" max="600" step="25" value="300"
+                            oninput="document.getElementById('wl_val').textContent = this.value + ' words'" />
+                        <span class="slider-val" id="wl_val">300 words</span>
+                    </div>
+                </div>
+                <div class="form-group full">
+                    <label>Job Description</label>
+                    <textarea id="job_description" placeholder="Paste the full job posting here..." maxlength="4000"
+                        oninput="updateCount(this,'jd_count',4000)"></textarea>
+                    <span class="char-count" id="jd_count">0 / 4000</span>
+                </div>
+                <div class="form-group full">
+                    <label>Your Background</label>
+                    <textarea id="candidate_background"
+                        placeholder="Paste your CV, skills, or experience summary here..." maxlength="3000"
+                        oninput="updateCount(this,'bg_count',3000)"></textarea>
+                    <span class="char-count" id="bg_count">0 / 3000</span>
+                </div>
+            </div>
+
+            <button class="generate-btn" id="genBtn" onclick="generate()">
+                ✨ Generate Cover Letter
+            </button>
+            <p class="error-msg" id="errorMsg"></p>
+
+            <div class="output-section" id="outputSection">
+                <div class="output-header">
+                    <span class="output-title">📄 Your Cover Letter</span>
+                    <div class="output-meta">
+                        <span class="word-badge" id="wordCountBadge"></span>
+                        <div class="action-btns">
+                            <button class="small-btn" onclick="copyLetter(event)">📋 Copy</button>
+                            <button class="small-btn" onclick="generate()">🔄 Regenerate</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="output-box"></div>
+            </div>
+        </div>
+
+        <!-- TAB 2: HISTORY -->
+        <div class="tab-panel" id="tab-history">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+                <div>
+                    <h3 style="font-size:1rem; color:var(--text);">📜 Generated Letters</h3>
+                    <p style="font-size:0.82rem; color:var(--muted); margin-top:3px;">Every generated letter is saved
+                        here automatically.</p>
+                </div>
+                <button class="small-btn" onclick="loadHistory()">🔄 Refresh</button>
+            </div>
+            <div id="history-list" class="history-list">
+                <div class="empty-state">
+                    <div class="big">📭</div>No letters yet. Generate one first!
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: TEMPLATES -->
+        <div class="tab-panel" id="tab-templates">
+            <div style="margin-bottom:18px;">
+                <h3 style="font-size:1rem; color:var(--text);">📋 Ready-Made Templates</h3>
+                <p style="font-size:0.82rem; color:var(--muted); margin-top:3px;">Pick a template and the form fills
+                    automatically!</p>
+            </div>
+            <div id="templates-list" class="templates-grid">
+                <div class="empty-state">
+                    <div class="big">⏳</div>Loading templates...
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let selectedTone = 'formal';
+        const API = 'http://127.0.0.1:8080';
+        let currentTemplates = [];
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function switchTab(name, btn) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + name).classList.add('active');
+            btn.classList.add('active');
+            if (name === 'history') loadHistory();
+            if (name === 'templates') loadTemplates();
+        }
+
+        function selectTone(tone, el) {
+            selectedTone = tone;
+            document.querySelectorAll('#tab-generate .tone-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        function updateCount(el, id, max) {
+            const span = document.getElementById(id);
+            span.textContent = el.value.length + ' / ' + max;
+            span.classList.toggle('warn', el.value.length > max * 0.9);
+        }
+
+        async function generate() {
+            const btn = document.getElementById('genBtn');
+            const errorMsg = document.getElementById('errorMsg');
+            const outputSection = document.getElementById('outputSection');
+            const outputBox = document.getElementById('output-box');
+            const wordBadge = document.getElementById('wordCountBadge');
+
+            const job_title = document.getElementById('job_title').value.trim();
+            const company_name = document.getElementById('company_name').value.trim();
+            const job_description = document.getElementById('job_description').value.trim();
+            const candidate_background = document.getElementById('candidate_background').value.trim();
+            const language = document.getElementById('language').value;
+            const word_limit = parseInt(document.getElementById('word_limit').value);
+
+            errorMsg.style.display = 'none';
+            if (!job_title || !company_name || !job_description || !candidate_background) {
+                errorMsg.textContent = 'Please fill in all fields before generating.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>Generating...';
+            outputSection.style.display = 'block';
+            outputBox.textContent = 'Please wait, generating your cover letter...';
+            wordBadge.textContent = '';
+
+            try {
+                const res = await fetch(API + '/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ job_title, company_name, job_description, candidate_background, tone: selectedTone, word_limit, language })
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.detail || 'Server error: ' + res.status);
+                }
+                const data = await res.json();
+                outputBox.textContent = data.letter;
+                wordBadge.textContent = data.word_count + ' words';
+            } catch (err) {
+                errorMsg.textContent = err.message;
+                errorMsg.style.display = 'block';
+                outputBox.textContent = '';
+                outputSection.style.display = 'none';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '✨ Generate Cover Letter';
+            }
+        }
+
+        function copyLetter(event) {
+            const btn = event ? event.currentTarget || event.target : null;
+            const text = document.getElementById('output-box').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                if (btn) {
+                    btn.textContent = '✅ Copied!';
+                    setTimeout(() => btn.textContent = '📋 Copy', 2000);
+                }
+            });
+        }
+
+        async function loadHistory() {
+            const container = document.getElementById('history-list');
+            container.innerHTML = '<div class="empty-state"><div class="big">⏳</div>Loading...</div>';
+            try {
+                const res = await fetch(API + '/history');
+                const data = await res.json();
+                if (!data.letters || data.letters.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="big">📭</div>No letters yet. Generate one first!</div>';
+                    return;
+                }
+                const reversed = [...data.letters].reverse();
+                container.innerHTML = reversed.map(function (item, i) {
+                    const langClass = item.language === 'english' ? 'lang-english' : item.language === 'urdu' ? 'lang-urdu' : 'lang-roman';
+                    const langLabel = item.language === 'english' ? 'English' : item.language === 'urdu' ? 'Urdu' : 'Roman Urdu';
+                    const date = new Date(item.timestamp).toLocaleString('en-PK');
+
+                    const escapedJobTitle = escapeHTML(item.job_title);
+                    const escapedCompanyName = escapeHTML(item.company_name);
+                    const escapedTone = escapeHTML(item.tone);
+                    const escapedLetter = escapeHTML(item.letter);
+                    const previewText = item.letter.substring(0, 150) + (item.letter.length > 150 ? '...' : '');
+                    const preview = escapeHTML(previewText);
+
+                    return '<div class="history-item">' +
+                        '<div class="history-item-header">' +
+                        '<div><h4>' + escapedJobTitle + ' @ ' + escapedCompanyName + '</h4>' +
+                        '<div class="meta">' + date + ' &middot; ' + item.word_count + ' words &middot; ' + escapedTone + '</div></div>' +
+                        '<span class="lang-badge ' + langClass + '">' + langLabel + '</span>' +
+                        '</div>' +
+                        '<div class="preview" id="prev-' + i + '">' + preview + '</div>' +
+                        '<button class="expand-btn" id="expbtn-' + i + '" onclick="toggleExpand(' + i + ', this)">Read More ▼</button>' +
+                        '<div style="display:none" id="fulltext-' + i + '">' + escapedLetter + '</div>' +
+                        '</div>';
+                }).join('');
+            } catch (e) {
+                container.innerHTML = '<div class="empty-state"><div class="big">❌</div>Could not load history. Is the backend running?</div>';
+            }
+        }
+
+        function toggleExpand(i, btn) {
+            const prev = document.getElementById('prev-' + i);
+            const full = document.getElementById('fulltext-' + i).textContent;
+            if (btn.textContent.includes('▼')) {
+                prev.textContent = full;
+                btn.textContent = 'Show Less ▲';
+            } else {
+                prev.textContent = full.substring(0, 150) + '...';
+                btn.textContent = 'Read More ▼';
+            }
+        }
+
+        async function loadTemplates() {
+            const container = document.getElementById('templates-list');
+            try {
+                const res = await fetch(API + '/templates');
+                const data = await res.json();
+                currentTemplates = data.templates || [];
+                container.innerHTML = currentTemplates.map(function (t, index) {
+                    const r = t.request;
+                    return '<div class="template-card">' +
+                        '<h4>' + escapeHTML(t.name) + '</h4>' +
+                        '<div class="template-tags">' +
+                        '<span class="tag">' + escapeHTML(r.tone) + '</span>' +
+                        '<span class="tag">' + escapeHTML(r.language) + '</span>' +
+                        '<span class="tag">' + r.word_limit + ' words</span>' +
+                        '</div>' +
+                        '<p style="font-size:0.82rem;color:var(--muted);margin-bottom:12px;"><strong>' + escapeHTML(r.job_title) + '</strong> at ' + escapeHTML(r.company_name) + '</p>' +
+                        '<button class="use-template-btn" onclick="useTemplateByIndex(' + index + ')">✨ Use This Template</button>' +
+                        '</div>';
+                }).join('');
+            } catch (e) {
+                container.innerHTML = '<div class="empty-state"><div class="big">❌</div>Could not load templates. Is the backend running?</div>';
+            }
+        }
+
+        function useTemplateByIndex(index) {
+            const template = currentTemplates[index];
+            if (template && template.request) {
+                useTemplate(template.request);
+            }
+        }
+
+        function useTemplate(r) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-generate').classList.add('active');
+            document.querySelector('.tab-btn').classList.add('active');
+
+            document.getElementById('job_title').value = r.job_title;
+            document.getElementById('company_name').value = r.company_name;
+            document.getElementById('job_description').value = r.job_description;
+            document.getElementById('candidate_background').value = r.candidate_background;
+            document.getElementById('language').value = r.language;
+            document.getElementById('word_limit').value = r.word_limit;
+            document.getElementById('wl_val').textContent = r.word_limit + ' words';
+            updateCount(document.getElementById('job_description'), 'jd_count', 4000);
+            updateCount(document.getElementById('candidate_background'), 'bg_count', 3000);
+
+            const toneMap = { formal: 0, conversational: 1, confident: 2 };
+            document.querySelectorAll('#tab-generate .tone-card').forEach(c => c.classList.remove('selected'));
+            document.querySelectorAll('#tab-generate .tone-card')[toneMap[r.tone] || 0].classList.add('selected');
+            selectedTone = r.tone;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+
+</html>
